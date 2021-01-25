@@ -31,6 +31,13 @@ struct Mem
 	{
 		return Data[addr];
 	}
+
+	void WriteWord(WORD data, u32 addr, u32& cycles)
+	{
+		Data[addr] = data & 0xFF;
+		Data[addr + 1] = (data >> 8);
+		cycles -= 2;
+	}
 };
 
 struct CPU
@@ -66,6 +73,18 @@ struct CPU
 		return data;
 	}
 
+	WORD FetchWord(u32& cycles, Mem& memory)
+	{
+		//6502 is little endian
+		WORD data = memory[PC];
+		PC++;
+
+		data |= (memory[PC] << 8);
+		PC++;
+		cycles -= 2;
+		return data;
+	}
+
 	BYTE ReadByte(u32& cycles, BYTE addr, Mem& memory)
 	{
 		BYTE data = memory[addr];
@@ -73,9 +92,11 @@ struct CPU
 		return data;
 	}
 
-	static constexpr BYTE	INS_LDA_IM = 0xA9,
-							INS_LDA_ZP = 0xA5,
-							INS_LDA_ZPX = 0xB5;
+	static constexpr BYTE	
+		INS_LDA_IM = 0xA9,
+		INS_LDA_ZP = 0xA5,
+		INS_LDA_ZPX = 0xB5,
+		INS_JSR = 0x20;
 
 	void LDASetStatus()
 	{
@@ -108,6 +129,13 @@ struct CPU
 				A = ReadByte(cycles, zeroPageAddr, memory);
 				LDASetStatus();
 			} break;
+			case INS_JSR:
+			{
+				WORD subAddr = FetchWord(cycles, memory);
+				memory.WriteWord(PC - 1, SP, cycles);
+				PC = subAddr;
+				cycles--;
+			} break;
 			default:
 			{
 				printf("Instruction not handled %d\n", instr);
@@ -124,10 +152,14 @@ int main()
 	cpu.Reset(mem);
 
 	//test program
-	mem[0xFFFC] = CPU::INS_LDA_ZP;
+	mem[0xFFFC] = CPU::INS_JSR;
 	mem[0xFFFD] = 0x42;
-	mem[0x0042] = 0x84;
-	cpu.Exec(3, mem);
+	mem[0xFFFE] = 0x42;
+	mem[0x4242] = CPU::INS_LDA_IM;
+	mem[0x4243] = 0xFF;
+
+	//execute the program
+	cpu.Exec(9, mem);
 
 	return 0;
 }
