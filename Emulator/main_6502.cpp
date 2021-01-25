@@ -20,6 +20,17 @@ struct Mem
 			Data[i] = 0;
 		}
 	}
+
+	//read 1 byte from memory
+	BYTE operator[](u32 addr) const
+	{
+		return Data[addr];
+	}
+
+	BYTE& operator[](u32 addr)
+	{
+		return Data[addr];
+	}
 };
 
 struct CPU
@@ -40,11 +51,69 @@ struct CPU
 
 	void Reset(Mem& memory)
 	{
-		PC = 0xFFFC;
+		PC = 0xFFFC; //set start point in memory
 		SP = 0x0100;
 		C = Z = I = D = B = V = N = 0;
 		A = X = Y = 0;
 		memory.Init();
+	}
+
+	BYTE FetchByte(u32& cycles, Mem& memory)
+	{
+		BYTE data = memory[PC];
+		PC++;
+		cycles--;
+		return data;
+	}
+
+	BYTE ReadByte(u32& cycles, BYTE addr, Mem& memory)
+	{
+		BYTE data = memory[addr];
+		cycles--;
+		return data;
+	}
+
+	static constexpr BYTE	INS_LDA_IM = 0xA9,
+							INS_LDA_ZP = 0xA5,
+							INS_LDA_ZPX = 0xB5;
+
+	void LDASetStatus()
+	{
+		Z = (A == 0);
+		N = (A & 0b10000000) > 0;
+	}
+
+	void Exec(u32 cycles, Mem& memory)
+	{
+		while (cycles > 0) {
+			BYTE instr = FetchByte(cycles, memory);
+			switch (instr) {
+			case INS_LDA_IM:
+			{
+				BYTE value = FetchByte(cycles, memory);
+				A = value;
+				LDASetStatus();
+			} break;
+			case INS_LDA_ZP:
+			{
+				BYTE zeroPageAddr = FetchByte(cycles, memory);
+				A = ReadByte(cycles, zeroPageAddr, memory);
+				LDASetStatus();
+			} break;
+			case INS_LDA_ZPX:
+			{
+				BYTE zeroPageAddr = FetchByte(cycles, memory);
+				zeroPageAddr += X;
+				cycles--;
+				A = ReadByte(cycles, zeroPageAddr, memory);
+				LDASetStatus();
+			} break;
+			default:
+			{
+				printf("Instruction not handled %d\n", instr);
+			}break;
+			}
+		}
 	}
 };
 
@@ -53,5 +122,12 @@ int main()
 	Mem mem;
 	CPU cpu;
 	cpu.Reset(mem);
+
+	//test program
+	mem[0xFFFC] = CPU::INS_LDA_ZP;
+	mem[0xFFFD] = 0x42;
+	mem[0x0042] = 0x84;
+	cpu.Exec(3, mem);
+
 	return 0;
 }
