@@ -1,2 +1,4 @@
-﻿  test_6502.cpp
+﻿  main_6502.cpp
+  test_6502.cpp
+  Generating Code...
   Test.vcxproj -> D:\Coding\C++\6502-emulator\x64\Debug\Test.exe

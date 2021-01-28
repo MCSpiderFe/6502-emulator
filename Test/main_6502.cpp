@@ -1,13 +1,8 @@
 #include "main_6502.h"
 
-int main()
+int main(int argc, char* argv[])
 {
 	Test test;
 	test.RunTests();
-
-	Mem mem;
-	CPU cpu;
-	cpu.Reset(mem);
-
 	return 0;
 }
