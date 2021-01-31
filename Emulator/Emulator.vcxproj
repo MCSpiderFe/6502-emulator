@@ -24,6 +24,7 @@
     <ProjectGuid>{2d83a36e-d8df-478a-b3e7-f1922a7ef412}</ProjectGuid>
     <RootNamespace>Emulator</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>6502-Emulator</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -72,9 +73,11 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
+    <IncludePath>$(SolutionDir)Emulator/src;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
+    <IncludePath>$(SolutionDir)Emulator/src;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
@@ -139,8 +142,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="main_6502.cpp" />
-    <ClCompile Include="main_6502.h" />
+    <ClCompile Include="src\emulator\emulator_6502.cpp" />
+    <ClCompile Include="src\emulator\emulator_6502.h" />
+    <ClCompile Include="src\main_6502.cpp" />
+    <ClCompile Include="src\test\6502_test_LDA.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\6502_pch.h" />
+    <ClInclude Include="src\test\test_6502.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
