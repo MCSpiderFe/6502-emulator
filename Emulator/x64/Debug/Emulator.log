@@ -1,4 +1,9 @@
-﻿  emulator_6502.h
-  6502_test_LDA.cpp
+﻿  emulator_6502.cpp
+  emulator_6502.h
+  main_6502.cpp
+  test_CPU.cpp
+  test_LDA.cpp
+  test_6502.cpp
   Generating Code...
+x64\Debug\emulator_6502.obj : warning LNK4042: object specified more than once; extras ignored
   Emulator.vcxproj -> D:\Coding\C++\6502-emulator\x64\Debug\6502-Emulator.exe
